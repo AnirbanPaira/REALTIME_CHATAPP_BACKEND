@@ -3,10 +3,21 @@ import User from "../models/users.models.js";
 
 export const autentication = async (req, res, next) => {
     try {
-        const token = req.cookies.jwt;
+        // First, try to get token from cookies
+        let token = req.cookies.jwt;
+        
+        // If no cookie token, try Authorization header (Bearer token)
+        if (!token) {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.split(' ')[1];
+            }
+        }
+
         if (!token) {
             return res.status(401).json({ message: 'Unauthorized - No token provided' });
         }
+        
         const decode = jwt.verify(token, process.env.JWT_SECRET);
         if (!decode) {
             return res.status(401).json({ message: 'Unauthorized - Invalid token' });

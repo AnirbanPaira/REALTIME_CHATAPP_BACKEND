@@ -90,9 +90,16 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
     try {
+        // Determine if we're in production for consistent cookie settings
+        const isProduction = process.env.NODE_ENV === "production" || 
+                            process.env.RENDER === "true" ||
+                            process.env.DEPLOYED === "true";
+        
         res.cookie("jwt", "", {
-            httpOnly:true,
-            maxAge: 0
+            httpOnly: true,
+            maxAge: 0,
+            sameSite: isProduction ? "none" : "lax",
+            secure: isProduction,
         });
         res.status(200).json({
             message: 'Logged out successfully'
