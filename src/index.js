@@ -68,14 +68,22 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).json({ message: err.message || "Internal Server Error" });
 });
 
-// Start server
-server.listen(port, (error) => {
-    if (!error) {
+// Validate required environment variables
+const requiredEnvVars = ['MONGODBURI', 'JWT_SECRET', 'JWT_EXPIRES_IN'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+if (missingEnvVars.length > 0) {
+    console.error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+    process.exit(1);
+}
+
+// Connect to database first, then start server
+connectDB().then(() => {
+    server.listen(port, () => {
         console.log(`Server is running on port ${port}`);
-        connectDB();
-    } else {
-        console.error("Error starting server:", error);
-    }
+    });
+}).catch((error) => {
+    console.error("Failed to connect to database:", error);
+    process.exit(1);
 });
 
 // Graceful shutdown
