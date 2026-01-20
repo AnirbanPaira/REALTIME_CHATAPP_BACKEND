@@ -13,13 +13,27 @@ dotenv.config();
 // Environment variables
 const port = process.env.PORT || 5000;
 const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+const deployedClientUrl = "https://realtime-chatapp-ashen-nine.vercel.app";
+
+// Allowed origins for CORS
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://realtime-chatapp-ashen-nine.vercel.app"
+];
 
 // Middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 app.use(cors({
-    origin: clientUrl,
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
 }));
 
@@ -33,6 +47,18 @@ app.get("/api/health", (req, res) => {
         status: "healthy", 
         timestamp: new Date().toISOString(),
         uptime: process.uptime()
+    });
+});
+
+// API Configuration endpoint - returns the base URL for API calls
+// Frontend can fetch this on startup to get the correct API URL
+app.get("/api/config", (req, res) => {
+    const protocol = req.protocol;
+    const host = req.get('host');
+    const baseUrl = `${protocol}://${host}`;
+    res.status(200).json({
+        apiUrl: baseUrl,
+        env: process.env.NODE_ENV || 'development'
     });
 });
 

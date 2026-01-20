@@ -7,10 +7,24 @@ const server = http.createServer(app);
 
 // Get client URL from environment or default to localhost
 const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+const deployedClientUrl = "https://realtime-chatapp-ashen-nine.vercel.app";
+
+// Allowed origins for CORS
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://realtime-chatapp-ashen-nine.vercel.app"
+];
 
 const io = new Server(server, {
   cors: {
-    origin: clientUrl,
+    origin: function(origin, callback) {
+        // Allow requests with no origin
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   },
 });
