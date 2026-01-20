@@ -18,7 +18,8 @@ const deployedClientUrl = "https://realtime-chatapp-ashen-nine.vercel.app";
 // Allowed origins for CORS
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://realtime-chatapp-ashen-nine.vercel.app"
+    "https://realtime-chatapp-ashen-nine.vercel.app",
+    "https://realtime-chat-app-ashen-nine.vercel.app"
 ];
 
 // Middleware
