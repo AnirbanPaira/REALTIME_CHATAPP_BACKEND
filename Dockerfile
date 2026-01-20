@@ -10,7 +10,7 @@ COPY backend/package*.json ./
 RUN npm ci --only=production
 
 # Copy source code
-COPY backend/ .
+COPY . .
 
 # Create .env file from environment variables (for production)
 # In production, these should be set in the platform's environment variables
